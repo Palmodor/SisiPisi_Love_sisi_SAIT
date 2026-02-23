@@ -1,0 +1,217 @@
+@model DeliveryAddressFormViewModel
+@{
+    ViewData["Title"] = "Редактировать адрес доставки";
+}
+
+<section class="edit-address-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="address-form-card">
+                    <h1 class="page-title mb-4">Редактировать адрес доставки</h1>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" asp-action="EditDeliveryAddress" asp-controller="Account" class="needs-validation">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="form-section">
+                            <h5 class="section-title">Основная информация</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="City" class="form-label">Город</label>
+                                    <input type="text" asp-for="City" class="form-control" placeholder="Москва">
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="DeliveryZoneId" class="form-label">Зона доставки</label>
+                                    <select asp-for="DeliveryZoneId" class="form-select">
+                                        <option value="">-- Выберите зону --</option>
+                                        @if (ViewBag.DeliveryZones != null)
+                                        {
+                                            @foreach (var zone in ViewBag.DeliveryZones)
+                                            {
+                                                <option value="@zone.Id">@zone.Name (₽@zone.DeliveryPrice)</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="DeliveryZoneId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label asp-for="Street" class="form-label">Улица</label>
+                                    <input type="text" asp-for="Street" class="form-control" placeholder="Ленина">
+                                    <span asp-validation-for="Street" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label asp-for="House" class="form-label">Дом</label>
+                                    <input type="text" asp-for="House" class="form-control" placeholder="42А">
+                                    <span asp-validation-for="House" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h5 class="section-title">Детали адреса</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="Apartment" class="form-label">Квартира</label>
+                                    <input type="text" asp-for="Apartment" class="form-control" placeholder="123">
+                                    <span asp-validation-for="Apartment" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="Entrance" class="form-label">Подъезд</label>
+                                    <input type="text" asp-for="Entrance" class="form-control" placeholder="1">
+                                    <span asp-validation-for="Entrance" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="Floor" class="form-label">Этаж</label>
+                                    <input type="text" asp-for="Floor" class="form-control" placeholder="3">
+                                    <span asp-validation-for="Floor" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="Intercom" class="form-label">Домофон</label>
+                                    <input type="text" asp-for="Intercom" class="form-control" placeholder="6789">
+                                    <span asp-validation-for="Intercom" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h5 class="section-title">Дополнительные сведения</h5>
+                            
+                            <div class="mb-3">
+                                <label asp-for="Comment" class="form-label">Комментарий для курьера</label>
+                                <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Например: позвонить в домофон, медленный лифт и т.д."></textarea>
+                                <span asp-validation-for="Comment" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input type="checkbox" asp-for="IsDefault" class="form-check-input" id="isDefault">
+                                <label class="form-check-label" for="isDefault">
+                                    Использовать этот адрес по умолчанию
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Сохранить адрес
+                            </button>
+                            <a href="@Url.Action("Profile", "Account")" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.edit-address-section {
+    padding: 60px 0;
+    min-height: calc(100vh - 200px);
+}
+
+.address-form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    color: #333;
+    font-weight: 600;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    color: #555;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #FF6B5B;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 91, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #FF6B5B;
+    border-color: #FF6B5B;
+}
+
+.btn-primary {
+    background-color: #FF6B5B;
+    border-color: #FF6B5B;
+    padding: 10px 20px;
+}
+
+.btn-primary:hover {
+    background-color: #E55A4A;
+    border-color: #E55A4A;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+}
+
+.text-danger {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+    color: #dc3545;
+}
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

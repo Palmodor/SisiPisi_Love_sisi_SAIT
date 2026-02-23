@@ -1,0 +1,139 @@
+@model DishDetailViewModel
+
+@{
+    ViewData["Title"] = Model.Dish.Name;
+}
+
+<section class="dish-detail-section">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Главная</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Меню</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" asp-route-categoryId="@Model.Dish.CategoryId">@Model.Dish.CategoryName</a></li>
+                <li class="breadcrumb-item active">@Model.Dish.Name</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="dish-detail-image">
+                    @if (!string.IsNullOrEmpty(Model.Dish.ImageUrl))
+                    {
+                        <img src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" />
+                    }
+                    else
+                    {
+                        <div class="dish-placeholder-lg">🍣</div>
+                    }
+                    @if (Model.Dish.IsNew)
+                    {
+                        <span class="dish-badge badge-new">NEW</span>
+                    }
+                    @if (Model.Dish.IsPopular)
+                    {
+                        <span class="dish-badge badge-popular"><i class="bi bi-fire"></i> ХИТ</span>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="dish-detail-info">
+                    <div class="dish-category">@Model.Dish.CategoryName</div>
+                    <h1>@Model.Dish.Name</h1>
+                    
+                    @if (Model.Dish.AverageRating.HasValue)
+                    {
+                        <div class="dish-rating">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi bi-star@(i <= Model.Dish.AverageRating.Value ? "-fill" : "")"></i>
+                            }
+                            <span>@Model.Dish.AverageRating.Value.ToString("F1") (@Model.Dish.ReviewsCount отзывов)</span>
+                        </div>
+                    }
+                    
+                    <p class="dish-description">@Model.Dish.Description</p>
+                    
+                    <div class="dish-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-basket"></i>
+                            <span>Вес: @Model.Dish.WeightGrams г</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dish-price-section">
+                        <div class="price">@Model.Dish.Price.ToString("N0") ₽</div>
+                        <button class="btn btn-primary btn-lg" onclick="addToCart(@Model.Dish.Id)">
+                            <i class="bi bi-cart-plus"></i> Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        @if (Model.Reviews.Any())
+        {
+            <div class="reviews-section mt-5">
+                <h3>Отзывы покупателей</h3>
+                <div class="reviews-list">
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-author">@review.UserName</span>
+                                <span class="review-date">@review.CreatedAt.ToString("dd.MM.yyyy")</span>
+                            </div>
+                            <div class="review-rating">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi bi-star@(i <= review.Rating ? "-fill" : "")"></i>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(review.Comment))
+                            {
+                                <p class="review-text">@review.Comment</p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Similar Dishes -->
+        @if (Model.SimilarDishes.Any())
+        {
+            <div class="similar-section mt-5">
+                <h3>Похожие блюда</h3>
+                <div class="row g-4">
+                    @foreach (var dish in Model.SimilarDishes)
+                    {
+                        <div class="col-md-3">
+                            <div class="dish-card" data-dish-id="@dish.Id">
+                                <div class="dish-image">
+                                    @if (!string.IsNullOrEmpty(dish.ImageUrl))
+                                    {
+                                        <img src="@dish.ImageUrl" alt="@dish.Name" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="dish-placeholder">🍣</div>
+                                    }
+                                </div>
+                                <div class="dish-content">
+                                    <h5 class="dish-name">@dish.Name</h5>
+                                    <div class="dish-footer">
+                                        <span class="dish-price">@dish.Price.ToString("N0") ₽</span>
+                                        <button class="btn btn-primary btn-sm" onclick="addToCart(@dish.Id)">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</section>

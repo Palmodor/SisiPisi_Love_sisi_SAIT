@@ -1,0 +1,117 @@
+@model CartViewModel
+
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<section class="cart-section">
+    <div class="container">
+        <h1 class="page-title">Корзина</h1>
+
+        @if (Model.Items.Any())
+        {
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart-items">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="cart-item" data-cart-item-id="@item.CartItemId">
+                                <div class="cart-item-image">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.DishName" />
+                                    }
+                                    else
+                                    {
+                                        <div class="cart-placeholder">🍣</div>
+                                    }
+                                </div>
+                                <div class="cart-item-info">
+                                    <h5>@item.DishName</h5>
+                                    <span class="cart-item-weight">@item.WeightGrams г</span>
+                                </div>
+                                <div class="cart-item-quantity">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(@item.CartItemId, -1)">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <span class="quantity">@item.Quantity</span>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(@item.CartItemId, 1)">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="cart-item-price">
+                                    <span class="unit-price">@item.UnitPrice.ToString("N0") ₽</span>
+                                    <span class="total-price">@item.TotalPrice.ToString("N0") ₽</span>
+                                </div>
+                                <button class="btn btn-remove" onclick="removeFromCart(@item.CartItemId)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="cart-actions">
+                        <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Продолжить покупки
+                        </a>
+                        <button class="btn btn-outline-danger" onclick="clearCart()">
+                            <i class="bi bi-trash"></i> Очистить корзину
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="cart-summary">
+                        <h4>Сумма заказа</h4>
+                        <div class="summary-row">
+                            <span>Товары (@Model.TotalItems)</span>
+                            <span>@Model.TotalAmount.ToString("N0") ₽</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Доставка</span>
+                            <span>@(Model.DeliveryPrice == 0 ? "Бесплатно" : $"{Model.DeliveryPrice:N0} ₽")</span>
+                        </div>
+                        @if (Model.DeliveryPrice > 0)
+                        {
+                            <div class="free-delivery-hint">
+                                <i class="bi bi-info-circle"></i> 
+                                Бесплатная доставка при заказе от 1000 ₽
+                            </div>
+                        }
+                        <div class="summary-row summary-total">
+                            <span>Итого</span>
+                            <span class="total-amount">@Model.FinalAmount.ToString("N0") ₽</span>
+                        </div>
+                        
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <a asp-controller="Order" asp-action="Checkout" class="btn btn-primary btn-lg w-100">
+                                Оформить заказ <i class="bi bi-arrow-right"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="/Order/Checkout" class="btn btn-primary btn-lg w-100">
+                                Войти для оформления
+                            </a>
+                            <p class="text-center text-muted mt-2">
+                                <small>или <a asp-controller="Account" asp-action="Register">зарегистрируйтесь</a></small>
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-cart">
+                <div class="empty-icon">🛒</div>
+                <h3>Ваша корзина пуста</h3>
+                <p>Добавьте блюда из меню, чтобы оформить заказ</p>
+                <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-menu-button-wide"></i> Перейти в меню
+                </a>
+            </div>
+        }
+    </div>
+</section>

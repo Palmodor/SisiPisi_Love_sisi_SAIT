@@ -1,0 +1,73 @@
+@model List<OrderViewModel>
+
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+
+<section class="orders-section">
+    <div class="container">
+        <h1 class="page-title">Мои заказы</h1>
+
+        @if (Model.Any())
+        {
+            <div class="orders-list">
+                @foreach (var order in Model)
+                {
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h5>Заказ @order.OrderNumber</h5>
+                                <span class="order-date">@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</span>
+                            </div>
+                            <span class="badge @order.StatusClass">@order.StatusText</span>
+                        </div>
+                        
+                        <div class="order-items-preview">
+                            @foreach (var item in order.Items.Take(3))
+                            {
+                                <div class="preview-item">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.DishName" />
+                                    }
+                                    else
+                                    {
+                                        <span>🍣</span>
+                                    }
+                                </div>
+                            }
+                            @if (order.Items.Count > 3)
+                            {
+                                <div class="preview-more">+@(order.Items.Count - 3)</div>
+                            }
+                        </div>
+                        
+                        <div class="order-footer">
+                            <div class="order-total">
+                                @if (order.DiscountAmount > 0)
+                                {
+                                    <span class="original-price">@order.TotalAmount.ToString("N0") ₽</span>
+                                }
+                                <span class="final-price">@order.FinalAmount.ToString("N0") ₽</span>
+                            </div>
+                            <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary">
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-orders">
+                <div class="empty-icon">📦</div>
+                <h3>У вас пока нет заказов</h3>
+                <p>Сделайте свой первый заказ прямо сейчас!</p>
+                <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-menu-button-wide"></i> Перейти в меню
+                </a>
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,183 @@
+@model AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Панель администратора";
+}
+
+<section class="admin-section">
+    <div class="container-fluid">
+        <div class="admin-header">
+            <h1><i class="bi bi-speedometer2"></i> Панель управления</h1>
+        </div>
+
+        <!-- Карточки статистики -->
+        <div class="row stats-row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary">
+                        <i class="bi bi-cart-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@Model.TotalOrdersToday</h3>
+                        <p>Заказов сегодня</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@Model.RevenueToday.ToString("N0") ₽</h3>
+                        <p>Выручка сегодня</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@Model.TotalUsers</h3>
+                        <p>Пользователей</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>@Model.PendingOrders</h3>
+                        <p>В обработке</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Последние заказы -->
+            <div class="col-lg-8 mb-4">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-clock-history"></i> Последние заказы</h5>
+                        <a asp-action="Orders" class="btn btn-sm btn-outline-primary">Все заказы</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Клиент</th>
+                                    <th>Сумма</th>
+                                    <th>Статус</th>
+                                    <th>Дата</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>@order.OrderNumber</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>@order.TotalAmount.ToString("N0") ₽</td>
+                                        <td>
+                                            @{
+                                                var statusClass = order.StatusKey?.ToLower() switch
+                                                {
+                                                    "pending" => "bg-warning",
+                                                    "confirmed" => "bg-info",
+                                                    "preparing" => "bg-primary",
+                                                    "readyfordelivery" => "bg-info",
+                                                    "ondelivery" => "bg-primary",
+                                                    "delivered" => "bg-success",
+                                                    "cancelled" => "bg-secondary",
+                                                    "rejected" => "bg-danger",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@order.StatusText</span>
+                                        </td>
+                                        <td>@order.OrderDate.ToString("dd.MM HH:mm")</td>
+                                        <td>
+                                            <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Популярные блюда -->
+            <div class="col-lg-4 mb-4">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-fire"></i> Популярные блюда</h5>
+                    </div>
+                    <div class="popular-dishes">
+                        @foreach (var dish in Model.PopularDishes)
+                        {
+                            <div class="popular-dish-item">
+                                <div class="dish-rank">@(Model.PopularDishes.IndexOf(dish) + 1)</div>
+                                <div class="dish-info">
+                                    <h6>@dish.Name</h6>
+                                    <span>@dish.OrderCount заказов</span>
+                                </div>
+                                <div class="dish-revenue">@dish.Revenue.ToString("N0") ₽</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="row">
+            <div class="col-12">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-lightning"></i> Быстрые действия</h5>
+                    </div>
+                    <div class="quick-actions">
+                        <a asp-action="Dishes" class="quick-action-btn">
+                            <i class="bi bi-menu-button-wide"></i>
+                            <span>Блюда</span>
+                        </a>
+                        <a asp-action="Categories" class="quick-action-btn">
+                            <i class="bi bi-folder"></i>
+                            <span>Категории</span>
+                        </a>
+                        <a asp-action="Orders" class="quick-action-btn">
+                            <i class="bi bi-cart"></i>
+                            <span>Заказы</span>
+                        </a>
+                        <a asp-action="Users" class="quick-action-btn">
+                            <i class="bi bi-people"></i>
+                            <span>Пользователи</span>
+                        </a>
+                        <a asp-action="Couriers" class="quick-action-btn">
+                            <i class="bi bi-bicycle"></i>
+                            <span>Курьеры</span>
+                        </a>
+                        <a asp-action="PromoCodes" class="quick-action-btn">
+                            <i class="bi bi-tag"></i>
+                            <span>Промокоды</span>
+                        </a>
+                        <a asp-action="Promotions" class="quick-action-btn">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Акции</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

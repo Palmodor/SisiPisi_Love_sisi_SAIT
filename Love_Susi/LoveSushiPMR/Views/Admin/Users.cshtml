@@ -1,0 +1,58 @@
+@model List<UserManagementViewModel>
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<section class="admin-section">
+    <div class="container-fluid">
+        <div class="admin-header">
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <h1><i class="bi bi-people"></i> Пользователи</h1>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Email</th>
+                            <th>Телефон</th>
+                            <th>Роль</th>
+                            <th>Дата регистрации</th>
+                            <th>Заказов</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td><strong>@user.Name</strong></td>
+                                <td>@user.Email</td>
+                                <td>@user.Phone</td>
+                                <td>
+                                    @if (user.Role == "Администратор")
+                                    {
+                                        <span class="badge bg-danger">@user.Role</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">@user.Role</span>
+                                    }
+                                </td>
+                                <td>@user.RegistrationDate.ToString("dd.MM.yyyy")</td>
+                                <td>@user.OrdersCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

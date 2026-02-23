@@ -1,0 +1,409 @@
+@model User
+@{
+    ViewData["Title"] = "Мой профиль";
+}
+
+<section class="profile-section">
+    <div class="container">
+        <div class="page-header mb-5">
+            <h1 class="page-title">Мой профиль</h1>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        
+        <div class="row">
+            <!-- Профиль пользователя -->
+            <div class="col-lg-4">
+                <div class="profile-card">
+                    <div class="profile-avatar">👤</div>
+                    <h4 class="mt-3">@Model.Name</h4>
+                    <p class="text-muted email-display">@Model.Email</p>
+                    <p class="text-muted phone-display">@Model.Phone</p>
+                    
+                    <hr />
+                    
+                    <div class="profile-bonus">
+                        <i class="bi bi-gift text-warning"></i>
+                        <span>Бонусов: <strong>@(Model.BonusAccount?.Balance.ToString("N0") ?? "0") ₽</strong></span>
+                    </div>
+                    
+                    <hr />
+                    
+                    <div class="profile-actions">
+                        <a href="@Url.Action("EditProfile", "Account")" class="btn btn-sm btn-outline-primary w-100">
+                            <i class="bi bi-pencil"></i> Редактировать профиль
+                        </a>
+                        <a href="@Url.Action("Logout", "Account")" class="btn btn-sm btn-outline-danger w-100 mt-2">
+                            <i class="bi bi-box-arrow-right"></i> Выход
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Адреса и статистика -->
+            <div class="col-lg-8">
+                <!-- Адреса доставки -->
+                <div class="profile-info-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Мои адреса доставки</h5>
+                        <a href="@Url.Action("AddDeliveryAddress", "Account")" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle"></i> Добавить адрес
+                        </a>
+                    </div>
+
+                    @if (Model.DeliveryAddresses.Any())
+                    {
+                        <div class="address-list">
+                            @foreach (var address in Model.DeliveryAddresses)
+                            {
+                                <div class="address-item">
+                                    <div class="address-content">
+                                        <div>
+                                            <strong>@address.City, @address.Street, д. @address.House</strong>
+                                            @if (!string.IsNullOrEmpty(address.Apartment))
+                                            {
+                                                <span>, кв. @address.Apartment</span>
+                                            }
+                                            @if (address.IsDefault)
+                                            {
+                                                <span class="badge bg-success ms-2">По умолчанию</span>
+                                            }
+                                            <p class="text-muted small mt-1 mb-0">
+                                                Зона: @address.DeliveryZone?.Name
+                                            </p>
+                                            @if (!string.IsNullOrEmpty(address.Comment))
+                                            {
+                                                <p class="text-muted small mt-1 mb-0">
+                                                    <i class="bi bi-chat-left-text"></i> @address.Comment
+                                                </p>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="address-actions">
+                                        <a href="@Url.Action("EditDeliveryAddress", "Account", new { id = address.Id })" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Изменить
+                                        </a>
+                                        <form method="post" asp-action="DeleteDeliveryAddress" asp-controller="Account" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@address.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить этот адрес?')">
+                                                <i class="bi bi-trash"></i> Удалить
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-pin-map"></i>
+                            <p class="text-muted">У вас пока нет сохранённых адресов</p>
+                            <a href="@Url.Action("AddDeliveryAddress", "Account")" class="btn btn-sm btn-primary">
+                                <i class="bi bi-plus-circle"></i> Добавить первый адрес
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Статистика -->
+                <div class="profile-info-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ваша статистика</h5>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <span class="stat-number">@Model.Orders.Count</span>
+                            <span class="stat-label">Всего заказов</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">@(Model.Orders.Sum(o => o.OrderItems.Count))</span>
+                            <span class="stat-label">Всего блюд</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">@Model.RegistrationDate.ToString("dd.MM.yyyy")</span>
+                            <span class="stat-label">Дата регистрации</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a asp-controller="Order" asp-action="History" class="btn btn-primary w-100">
+                            <i class="bi bi-clock-history"></i> История заказов
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.profile-section {
+    padding: 40px 0;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 150px);
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.profile-card h4 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.profile-card p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.profile-bonus {
+    background-color: #fff8e1;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.profile-actions {
+    margin-top: 20px;
+}
+
+.btn-outline-primary {
+    border-color: #FF6B5B;
+    color: #FF6B5B;
+}
+
+.btn-outline-primary:hover {
+    background-color: #FF6B5B;
+    border-color: #FF6B5B;
+    color: white;
+}
+
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.profile-info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h5 {
+    color: #333;
+    font-weight: 600;
+    margin: 0;
+}
+
+.address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.address-item {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.address-item:hover {
+    background-color: #fff;
+    border-color: #FF6B5B;
+    box-shadow: 0 2px 6px rgba(255, 107, 91, 0.1);
+}
+
+.address-content {
+    flex: 1;
+}
+
+.address-content strong {
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.address-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 15px;
+}
+
+.address-actions form {
+    margin: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.empty-state p {
+    margin-bottom: 15px;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-box {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #FF6B5B;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #FF6B5B;
+    border-color: #FF6B5B;
+}
+
+.btn-primary:hover {
+    background-color: #E55A4A;
+    border-color: #E55A4A;
+}
+
+.btn-sm {
+    font-size: 13px;
+}
+
+@@media (max-width: 992px) {
+    .address-item {
+        flex-direction: column;
+    }
+
+    .address-actions {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@@media (max-width: 576px) {
+    .profile-section {
+        padding: 20px 0;
+    }
+
+    .profile-card,
+    .profile-info-card {
+        padding: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-header .btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .address-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .address-actions .btn {
+        width: 100%;
+    }
+}
+</style>

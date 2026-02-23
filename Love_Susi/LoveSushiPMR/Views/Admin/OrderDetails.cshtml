@@ -1,0 +1,163 @@
+@model OrderManagementViewModel
+@{
+    ViewData["Title"] = $"Заказ {Model.OrderNumber}";
+}
+
+@{
+    string GetBadgeClass(string statusKey) => statusKey?.ToLower() switch
+    {
+        "pending" => "bg-warning",
+        "confirmed" => "bg-info",
+        "preparing" => "bg-primary",
+        "readyfordelivery" => "bg-info",
+        "ondelivery" => "bg-primary",
+        "delivered" => "bg-success",
+        "cancelled" => "bg-secondary",
+        "rejected" => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+<section class="admin-section">
+    <div class="container-fluid">
+        <div class="admin-header">
+            <div>
+                <a asp-action="Orders" class="btn btn-outline-secondary btn-sm mb-2">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+                <h1><i class="bi bi-cart"></i> Заказ @Model.OrderNumber</h1>
+                <p class="text-muted">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+            <a asp-action="Orders" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> К списку заказов
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Товары заказа -->
+                <div class="admin-card">
+                    <h5><i class="bi bi-list"></i> Состав заказа</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Блюдо</th>
+                                    <th>Кол-во</th>
+                                    <th>Цена</th>
+                                    <th>Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                                {
+                                                    <img src="@item.ImageUrl" alt="@item.DishName" class="dish-thumb" />
+                                                }
+                                                else
+                                                {
+                                                    <span>🍣</span>
+                                                }
+                                                @item.DishName
+                                            </div>
+                                        </td>
+                                        <td>@item.Quantity</td>
+                                        <td>@item.UnitPrice.ToString("N0") ₽</td>
+                                        <td><strong>@item.TotalPrice.ToString("N0") ₽</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Итого:</strong></td>
+                                    <td><strong class="text-primary fs-5">@Model.TotalAmount.ToString("N0") ₽</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Обновление статуса -->
+                <div class="admin-card">
+                    <h5><i class="bi bi-arrow-repeat"></i> Изменить статус</h5>
+                    <form asp-action="UpdateOrderStatus" method="post">
+                        <input type="hidden" name="orderId" value="@Model.Id" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <select name="newStatus" class="form-select">
+                                    @foreach (var status in Model.AvailableStatuses)
+                                    {
+                                        var statusName = status switch
+                                        {
+                                            "Pending" => "Ожидает подтверждения",
+                                            "Confirmed" => "Подтверждён",
+                                            "Preparing" => "Готовится",
+                                            "ReadyForDelivery" => "Готов к доставке",
+                                            "OnDelivery" => "В пути",
+                                            "Delivered" => "Доставлен",
+                                            "Cancelled" => "Отменён",
+                                            "Rejected" => "Отклонён",
+                                            _ => status
+                                        };
+                                        <option value="@status" selected="@(status == Model.StatusKey)">@statusName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="comment" class="form-control" placeholder="Комментарий (необязательно)" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Обновить</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Назначить курьера -->
+                <div class="admin-card">
+                    <h5><i class="bi bi-bicycle"></i> Назначить курьера</h5>
+                    <form asp-action="AssignCourier" method="post">
+                        <input type="hidden" name="orderId" value="@Model.Id" />
+                        <div class="row">
+                            <div class="col-md-8">
+                                <select name="courierId" class="form-select">
+                                    <option value="">Выберите курьера</option>
+                                    @foreach (var courier in Model.AvailableCouriers)
+                                    {
+                                        <option value="@courier.Id" selected="@(courier.Id == Model.AssignedCourierId)">@courier.Name - @courier.Status</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Назначить</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Информация о клиенте -->
+                <div class="admin-card">
+                    <h5><i class="bi bi-person"></i> Информация о клиенте</h5>
+                    <p><strong>Имя:</strong> @Model.CustomerName</p>
+                    <p><strong>Телефон:</strong> <a href="tel:@Model.Phone">@Model.Phone</a></p>
+                    <p><strong>Адрес:</strong> @Model.Address</p>
+                </div>
+
+                <!-- Статус заказа -->
+                <div class="admin-card">
+                    <h5><i class="bi bi-info-circle"></i> Статус заказа</h5>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge @GetBadgeClass(Model.StatusKey) badge-lg fs-6">@Model.CurrentStatus</span>
+                    </div>
+                    <p class="text-muted">Обновляйте статус заказа по мере его выполнения</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

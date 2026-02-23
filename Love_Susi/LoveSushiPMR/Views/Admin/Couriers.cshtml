@@ -1,0 +1,88 @@
+@model List<Courier>
+@{
+    ViewData["Title"] = "Курьеры";
+}
+
+<section class="admin-section">
+    <div class="container-fluid">
+        <div class="admin-header">
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <h1><i class="bi bi-bicycle"></i> Курьеры</h1>
+            </div>
+            <a asp-action="CreateCourier" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Добавить курьера
+            </a>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="admin-card">
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Телефон</th>
+                            <th>Статус</th>
+                            <th>Активных заказов</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var courier in Model)
+                        {
+                            <tr>
+                                <td>@courier.Id</td>
+                                <td><strong>@courier.FullName</strong></td>
+                                <td>@courier.Phone</td>
+                                <td>
+                                    @switch (courier.Status)
+                                    {
+                                        case CourierStatus.Available:
+                                            <span class="badge bg-success">Свободен</span>
+                                            break;
+                                        case CourierStatus.OnDelivery:
+                                            <span class="badge bg-warning">На доставке</span>
+                                            break;
+                                        case CourierStatus.Offline:
+                                            <span class="badge bg-secondary">Оффлайн</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@courier.Orders.Count</td>
+                                <td>
+                                    <a asp-action="EditCourier" asp-route-id="@courier.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i> Редактировать
+                                    </a>
+                                    <form asp-action="DeleteCourier" asp-route-id="@courier.Id" method="post" class="d-inline" 
+                                          onsubmit="return confirm('Вы уверены, что хотите удалить этого курьера?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

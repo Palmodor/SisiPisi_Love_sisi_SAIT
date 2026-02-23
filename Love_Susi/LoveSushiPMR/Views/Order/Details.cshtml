@@ -1,0 +1,105 @@
+@model OrderViewModel
+
+@{
+    ViewData["Title"] = $"Заказ {Model.OrderNumber}";
+}
+
+<section class="order-detail-section">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Главная</a></li>
+                <li class="breadcrumb-item"><a asp-action="History">Мои заказы</a></li>
+                <li class="breadcrumb-item active">@Model.OrderNumber</li>
+            </ol>
+        </nav>
+
+        <div class="order-detail-header">
+            <div>
+                <h1>Заказ @Model.OrderNumber</h1>
+                <p class="order-date">Оформлен @Model.OrderDate.ToString("dd.MM.yyyy в HH:mm")</p>
+            </div>
+            <span class="badge @Model.StatusClass badge-lg">@Model.StatusText</span>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="order-detail-card">
+                    <h4>Состав заказа</h4>
+                    <div class="order-detail-items">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="detail-item">
+                                <div class="item-image">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.DishName" />
+                                    }
+                                    else
+                                    {
+                                        <span>🍣</span>
+                                    }
+                                </div>
+                                <div class="item-details">
+                                    <h6>@item.DishName</h6>
+                                    <span class="item-quantity">@item.Quantity шт.</span>
+                                </div>
+                                <div class="item-price">@item.TotalPrice.ToString("N0") ₽</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (ViewBag.Courier != null)
+                {
+                    <div class="order-detail-card">
+                        <h4><i class="bi bi-truck"></i> Информация о доставке</h4>
+                        <div class="delivery-info">
+                            <p><strong>Курьер:</strong> @ViewBag.Courier.FullName</p>
+                            <p><strong>Телефон курьера:</strong> @ViewBag.Courier.Phone</p>
+                            <p><strong>Адрес:</strong> @ViewBag.DeliveryAddress</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="order-summary-card">
+                    <h4>Сумма заказа</h4>
+                    <div class="summary-lines">
+                        <div class="summary-line">
+                            <span>Товары</span>
+                            <span>@Model.TotalAmount.ToString("N0") ₽</span>
+                        </div>
+                        @if (Model.DiscountAmount > 0)
+                        {
+                            <div class="summary-line discount">
+                                <span>Скидка</span>
+                                <span>-@Model.DiscountAmount.ToString("N0") ₽</span>
+                            </div>
+                        }
+                        @if (ViewBag.DeliveryPrice > 0)
+                        {
+                            <div class="summary-line">
+                                <span>Доставка</span>
+                                <span>@ViewBag.DeliveryPrice.ToString("N0") ₽</span>
+                            </div>
+                        }
+                        <div class="summary-line total">
+                            <span>Итого</span>
+                            <span>@Model.FinalAmount.ToString("N0") ₽</span>
+                        </div>
+                    </div>
+
+                    @if (ViewBag.EstimatedDelivery != null)
+                    {
+                        <div class="estimated-delivery mt-3">
+                            <i class="bi bi-clock"></i>
+                            <span>Ожидаемое время доставки: @(((DateTime)ViewBag.EstimatedDelivery).ToString("HH:mm"))</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

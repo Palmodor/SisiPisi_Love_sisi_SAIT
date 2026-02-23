@@ -1,0 +1,98 @@
+@model MenuViewModel
+
+@{
+    ViewData["Title"] = "Меню";
+}
+
+<section class="menu-section">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Наше меню</h1>
+            <p>Более 100 видов блюд японской и европейской кухни</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar mb-4">
+            <form asp-action="Index" method="get" class="d-flex">
+                <input type="text" name="search" class="form-control form-control-lg" 
+                       placeholder="Поиск блюд..." value="@Model.SearchQuery">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Categories -->
+        <div class="menu-categories mb-4">
+            <a asp-action="Index" class="category-chip @(Model.SelectedCategoryId == null ? "active" : "")">
+                Все блюда
+            </a>
+            @foreach (var category in Model.Categories)
+            {
+                <a asp-action="Index" asp-route-categoryId="@category.Id" 
+                   class="category-chip @(category.IsActive ? "active" : "")">
+                    @category.IconUrl @category.Name
+                </a>
+            }
+        </div>
+
+        <!-- Dishes Grid -->
+        @if (Model.Dishes.Any())
+        {
+            <div class="row g-4">
+                @foreach (var dish in Model.Dishes)
+                {
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="dish-card" data-dish-id="@dish.Id">
+                            <div class="dish-image">
+                                @if (!string.IsNullOrEmpty(dish.ImageUrl))
+                                {
+                                    <img src="@dish.ImageUrl" alt="@dish.Name" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="dish-placeholder">🍣</div>
+                                }
+                                @if (dish.IsNew)
+                                {
+                                    <span class="dish-badge badge-new">NEW</span>
+                                }
+                                @if (dish.IsPopular)
+                                {
+                                    <span class="dish-badge badge-popular"><i class="bi bi-fire"></i> ХИТ</span>
+                                }
+                                <a asp-action="Details" asp-route-id="@dish.Id" class="dish-overlay">
+                                    <i class="bi bi-eye"></i> Подробнее
+                                </a>
+                            </div>
+                            <div class="dish-content">
+                                <div class="dish-category">@dish.CategoryName</div>
+                                <h5 class="dish-name">@dish.Name</h5>
+                                <p class="dish-description">@dish.Description</p>
+                                <div class="dish-meta">
+                                    <span class="dish-weight"><i class="bi bi-basket"></i> @dish.WeightGrams г</span>
+                                </div>
+                                <div class="dish-footer">
+                                    <span class="dish-price">@dish.Price.ToString("N0") ₽</span>
+                                    <button class="btn btn-primary btn-add-cart" onclick="addToCart(@dish.Id)">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h4>Блюда не найдены</h4>
+                <p>Попробуйте изменить параметры поиска или выбрать другую категорию</p>
+                <a asp-action="Index" class="btn btn-primary">Показать все блюда</a>
+            </div>
+        }
+    </div>
+</section>

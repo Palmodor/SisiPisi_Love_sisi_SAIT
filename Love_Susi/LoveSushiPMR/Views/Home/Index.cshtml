@@ -1,0 +1,232 @@
+﻿@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Доставка суши и роллов в Тирасполе";
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6 hero-content">
+                <div class="hero-badge">
+                    <i class="bi bi-lightning-charge-fill"></i> Быстрая доставка от 30 минут
+                </div>
+                <h1 class="hero-title">Свежие суши и роллы<br>с доставкой на дом</h1>
+                <p class="hero-description">
+                    Готовим из свежайших ингредиентов. Более 100 видов роллов, суши, WOK и пиццы. 
+                    Доставка по Тирасполю, Бендерам и Днестровску.
+                </p>
+                <div class="hero-buttons">
+                    <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">
+                        <i class="bi bi-menu-button-wide"></i> Смотреть меню
+                    </a>
+                    <a href="tel:+37377712345" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-telephone"></i> Позвонить
+                    </a>
+                </div>
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <i class="bi bi-clock"></i>
+                        <span>Доставка<br>от 30 мин</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-award"></i>
+                        <span>Свежие<br>продукты</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-gift"></i>
+                        <span>Бонусы за<br>заказы</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="hero-image">
+                    <div class="sushi-plate">🍱</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <h2 class="section-title">Наше меню</h2>
+        <div class="row g-4">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a asp-controller="Menu" asp-action="Index" asp-route-categoryId="@category.Id" class="category-card">
+                        <div class="category-icon">@category.IconUrl</div>
+                        <h5 class="category-name">@category.Name</h5>
+                        <span class="category-count">@category.DishCount блюд</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Popular Dishes Section -->
+<section class="popular-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Популярные блюда</h2>
+            <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-primary">Все блюда</a>
+        </div>
+        <div class="row g-4">
+            @foreach (var dish in Model.PopularDishes)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <div class="dish-card" data-dish-id="@dish.Id">
+                        <div class="dish-image">
+                            @if (!string.IsNullOrEmpty(dish.ImageUrl))
+                            {
+                                <img src="@dish.ImageUrl" alt="@dish.Name" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="dish-placeholder">🍣</div>
+                            }
+                            @if (dish.IsNew)
+                            {
+                                <span class="dish-badge badge-new">NEW</span>
+                            }
+                            @if (dish.IsPopular)
+                            {
+                                <span class="dish-badge badge-popular"><i class="bi bi-fire"></i> ХИТ</span>
+                            }
+                        </div>
+                        <div class="dish-content">
+                            <h5 class="dish-name">@dish.Name</h5>
+                            <p class="dish-weight">@dish.WeightGrams г</p>
+                            <p class="dish-description">@dish.Description</p>
+                            <div class="dish-footer">
+                                <span class="dish-price">@dish.Price.ToString("N0") ₽</span>
+                                <button class="btn btn-primary btn-add-cart" onclick="addToCart(@dish.Id)">
+                                    <i class="bi bi-cart-plus"></i> В корзину
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Promotions Section -->
+@if (Model.Promotions.Any())
+{
+    <section class="promotions-section">
+        <div class="container">
+            <h2 class="section-title">Акции и предложения</h2>
+            <div class="row g-4">
+                @foreach (var promo in Model.Promotions)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="promo-card">
+                            <div class="promo-content">
+                                <h4>@promo.Name</h4>
+                                <p>@promo.Description</p>
+                                @if (promo.DiscountPercent.HasValue)
+                                {
+                                    <div class="promo-discount">-@promo.DiscountPercent%</div>
+                                }
+                                <a asp-controller="Menu" asp-action="Index" class="btn btn-light">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Delivery Info Section -->
+<section class="delivery-info-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="section-title">Условия доставки</h2>
+                <div class="delivery-conditions">
+                    <div class="condition-item">
+                        <div class="condition-icon">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="condition-content">
+                            <h5>Бесплатная доставка</h5>
+                            <p>При заказе от 1000 ₽ доставка бесплатно по всему городу</p>
+                        </div>
+                    </div>
+                    <div class="condition-item">
+                        <div class="condition-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div class="condition-content">
+                            <h5>Время доставки</h5>
+                            <p>В среднем 30-50 минут в зависимости от района</p>
+                        </div>
+                    </div>
+                    <div class="condition-item">
+                        <div class="condition-icon">
+                            <i class="bi bi-credit-card"></i>
+                        </div>
+                        <div class="condition-content">
+                            <h5>Удобная оплата</h5>
+                            <p>Наличными, картой онлайн или курьеру</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="delivery-zones">
+                    <h4>Зоны доставки</h4>
+                    <div class="zone-list">
+                        <div class="zone-item">
+                            <span class="zone-name">Центр города</span>
+                            <span class="zone-price">Бесплатно</span>
+                            <span class="zone-time">30-50 мин</span>
+                        </div>
+                        <div class="zone-item">
+                            <span class="zone-name">Спутник</span>
+                            <span class="zone-price">150 ₽</span>
+                            <span class="zone-time">40-60 мин</span>
+                        </div>
+                        <div class="zone-item">
+                            <span class="zone-name">Западный</span>
+                            <span class="zone-price">100 ₽</span>
+                            <span class="zone-time">35-55 мин</span>
+                        </div>
+                        <div class="zone-item">
+                            <span class="zone-name">Северный</span>
+                            <span class="zone-price">100 ₽</span>
+                            <span class="zone-time">35-55 мин</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h3>Есть вопросы? Мы поможем!</h3>
+                    <p>Наши операторы работают ежедневно с 10:00 до 23:00</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="tel:+37377712345" class="btn btn-light btn-lg">
+                        <i class="bi bi-telephone-fill"></i> +373 (777) 12-345
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

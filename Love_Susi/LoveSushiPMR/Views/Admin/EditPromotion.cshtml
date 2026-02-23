@@ -1,0 +1,94 @@
+  @model Promotion
+@{
+    ViewData["Title"] = "Редактирование акции";
+}
+
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <div>
+                <a asp-action="Promotions" class="btn btn-outline-secondary btn-sm mb-2">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+                <h1><i class="bi bi-pencil"></i> Редактирование акции</h1>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="admin-card">
+                    <form asp-action="EditPromotion" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Название</label>
+                                    <input type="text" asp-for="Name" class="form-control" required />
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Описание</label>
+                                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Условия акции</label>
+                                    <textarea asp-for="Conditions" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <div class="mb-3">
+                                        <label class="form-label">Текущее изображение</label>
+                                        <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded" style="max-height: 200px;" />
+                                    </div>
+                                }
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Новое изображение</label>
+                                    <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                                    <input type="hidden" asp-for="ImageUrl" />
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Скидка (%)</label>
+                                    <input type="number" asp-for="DiscountPercent" class="form-control" step="0.01" min="0" max="100" />
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" asp-for="IsActive" class="form-check-input" />
+                                    <label class="form-check-label">Активна</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Дата начала</label>
+                                    <input type="datetime-local" asp-for="StartDate" class="form-control" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Дата окончания</label>
+                                    <input type="datetime-local" asp-for="EndDate" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Сохранить изменения
+                            </button>
+                            <a asp-action="Promotions" class="btn btn-outline-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,82 @@
+@model LoveSushiPMR.Models.ViewModels.PromoCodeEditViewModel
+
+@{
+    ViewData["Title"] = "Добавить промокод";
+}
+
+<section class="admin-section">
+    <div class="container-fluid">
+        <div class="admin-header">
+            <div>
+                <a asp-action="PromoCodes" class="btn btn-outline-secondary btn-sm mb-2">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+                <h1><i class="bi bi-tag"></i> Добавить промокод</h1>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="admin-card">
+                    <form asp-action="CreatePromoCode" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Code" class="form-label">Код промокода</label>
+                            <input asp-for="Code" class="form-control text-uppercase" placeholder="Например: SUSHI2024" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DiscountPercent" class="form-label">Скидка (%)</label>
+                            <input asp-for="DiscountPercent" class="form-control" type="number" min="1" max="100" />
+                            <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MaxDiscountAmount" class="form-label">Максимальная сумма скидки (₽) - необязательно</label>
+                            <input asp-for="MaxDiscountAmount" class="form-control" type="number" placeholder="Без ограничений" />
+                            <span asp-validation-for="MaxDiscountAmount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MinOrderAmount" class="form-label">Минимальная сумма заказа (₽) - необязательно</label>
+                            <input asp-for="MinOrderAmount" class="form-control" type="number" placeholder="Без ограничений" />
+                            <span asp-validation-for="MinOrderAmount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MaxUsageCount" class="form-label">Максимальное количество использований - необязательно</label>
+                            <input asp-for="MaxUsageCount" class="form-control" type="number" placeholder="Неограниченно" />
+                            <span asp-validation-for="MaxUsageCount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ValidUntil" class="form-label">Действует до</label>
+                            <input asp-for="ValidUntil" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="ValidUntil" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">Активен</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> Создать промокод
+                            </button>
+                            <a asp-action="PromoCodes" class="btn btn-outline-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

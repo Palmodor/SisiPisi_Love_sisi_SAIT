@@ -1,0 +1,122 @@
+@model ProfileEditViewModel
+@{
+    ViewData["Title"] = "Редактировать профиль";
+}
+
+<section class="edit-profile-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="edit-profile-card">
+                    <h1 class="page-title mb-4">Редактировать профиль</h1>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" asp-action="EditProfile" asp-controller="Account" class="needs-validation">
+                        @Html.AntiForgeryToken()
+                        
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Имя</label>
+                            <input type="text" asp-for="Name" class="form-control" placeholder="Введите ваше имя">
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input type="email" asp-for="Email" class="form-control" disabled>
+                            <small class="text-muted">Email отображается в информационных целях</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">Телефон</label>
+                            <input type="tel" asp-for="Phone" class="form-control" placeholder="+7 (999) 999-99-99">
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Сохранить
+                            </button>
+                            <a href="@Url.Action("Profile", "Account")" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.edit-profile-section {
+    padding: 60px 0;
+    min-height: calc(100vh - 200px);
+}
+
+.edit-profile-card {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #FF6B5B;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 91, 0.25);
+}
+
+.btn-primary {
+    background-color: #FF6B5B;
+    border-color: #FF6B5B;
+    padding: 10px 20px;
+}
+
+.btn-primary:hover {
+    background-color: #E55A4A;
+    border-color: #E55A4A;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+}
+
+.text-danger {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

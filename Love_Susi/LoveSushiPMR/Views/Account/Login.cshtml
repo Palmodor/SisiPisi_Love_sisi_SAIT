@@ -1,0 +1,61 @@
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="auth-icon">🍣</div>
+                        <h2>Вход в аккаунт</h2>
+                        <p>Войдите для оформления заказов и получения бонусов</p>
+                    </div>
+                    
+                    <form asp-action="Login" method="post" novalidate id="loginForm">
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" name="Email" placeholder="name@example.com" value="@Model?.Email" required>
+                            <label for="email"><i class="bi bi-envelope"></i> Email</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" name="Password" placeholder="Пароль" required>
+                            <label for="password"><i class="bi bi-lock"></i> Пароль</label>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="RememberMe" value="true" @(Model?.RememberMe == true ? "checked" : "")>
+                            <label class="form-check-label" for="rememberMe">Запомнить меня</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg" id="loginBtn">Войти</button>
+                    </form>
+                    
+                    <script>
+                    $(document).ready(function() {
+                        console.log('[LOGIN] Page loaded');
+                        $('#loginForm').on('submit', function(e) {
+                            console.log('[LOGIN] Form submit event fired');
+                            console.log('[LOGIN] Email:', $('#email').val());
+                            console.log('[LOGIN] Password:', $('#password').val());
+                            console.log('[LOGIN] RememberMe:', $('#rememberMe').is(':checked'));
+                        });
+                    });
+                    </script>
+                    
+                    <div class="auth-footer">
+                        <p>Ещё нет аккаунта? <a asp-action="Register">Зарегистрироваться</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

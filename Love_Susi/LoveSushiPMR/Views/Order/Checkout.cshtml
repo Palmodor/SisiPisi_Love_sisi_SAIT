@@ -1,0 +1,153 @@
+@model CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Оформление заказа";
+}
+
+<section class="checkout-section">
+    <div class="container">
+        <h1 class="page-title">Оформление заказа</h1>
+        
+        <form asp-action="Checkout" method="post">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Адрес доставки -->
+                    <div class="checkout-card">
+                        <h4><i class="bi bi-geo-alt"></i> Адрес доставки</h4>
+                        
+                        @if (Model.SavedAddresses.Any())
+                        {
+                            <div class="saved-addresses mb-3">
+                                @foreach (var address in Model.SavedAddresses)
+                                {
+                                    <div class="address-option">
+                                        <input type="radio" name="DeliveryAddressId" id="addr_@address.Id" value="@address.Id" 
+                                               @(address.IsDefault ? "checked" : "") required />
+                                        <label for="addr_@address.Id">
+                                            <span class="address-text">@address.FullAddress</span>
+                                            @if (address.IsDefault)
+                                            {
+                                                <span class="badge badge-default">По умолчанию</span>
+                                            }
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> 
+                                У вас пока нет сохранённых адресов. Добавьте адрес в профиле.
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Способ оплаты -->
+                    <div class="checkout-card">
+                        <h4><i class="bi bi-credit-card"></i> Способ оплаты</h4>
+                        <div class="payment-options">
+                            <div class="payment-option">
+                                <input type="radio" name="PaymentMethod" id="pay_cash" value="Cash" checked />
+                                <label for="pay_cash">
+                                    <i class="bi bi-cash"></i>
+                                    <span>Наличными курьеру</span>
+                                </label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" name="PaymentMethod" id="pay_card_online" value="CardOnline" />
+                                <label for="pay_card_online">
+                                    <i class="bi bi-credit-card"></i>
+                                    <span>Картой онлайн</span>
+                                </label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" name="PaymentMethod" id="pay_card_courier" value="CardCourier" />
+                                <label for="pay_card_courier">
+                                    <i class="bi bi-credit-card-2-front"></i>
+                                    <span>Картой курьеру</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Промокод -->
+                    <div class="checkout-card">
+                        <h4><i class="bi bi-tag"></i> Промокод</h4>
+                        <div class="input-group">
+                            <input type="text" name="PromoCode" class="form-control" placeholder="Введите промокод" />
+                            <button type="button" class="btn btn-outline-primary">Применить</button>
+                        </div>
+                    </div>
+
+                    <!-- Бонусные баллы -->
+                    @if (Model.AvailableBonuses > 0)
+                    {
+                        <div class="checkout-card">
+                            <h4><i class="bi bi-gift"></i> Бонусные баллы</h4>
+                            <p>Доступно: <strong>@Model.AvailableBonuses.ToString("N0") ₽</strong></p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="useBonuses" name="UseBonuses" value="true" />
+                                <label class="form-check-label" for="useBonuses">
+                                    Использовать бонусы
+                                </label>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Дополнительная информация -->
+                    <div class="checkout-card">
+                        <h4><i class="bi bi-info-circle"></i> Дополнительно</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Количество приборов</label>
+                                <input type="number" name="UtensilsCount" class="form-control" value="1" min="1" max="10" />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Комментарий к заказу</label>
+                            <textarea name="Comment" class="form-control" rows="3" 
+                                      placeholder="Например: звоните в домофон"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="checkout-summary">
+                        <h4>Ваш заказ</h4>
+                        <div class="order-items">
+                            @foreach (var item in Model.Cart.Items)
+                            {
+                                <div class="order-item">
+                                    <span class="item-name">@item.DishName x @item.Quantity</span>
+                                    <span class="item-price">@item.TotalPrice.ToString("N0") ₽</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row">
+                            <span>Товары</span>
+                            <span>@Model.Cart.TotalAmount.ToString("N0") ₽</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Доставка</span>
+                            <span>@(Model.Cart.DeliveryPrice == 0 ? "Бесплатно" : $"{Model.Cart.DeliveryPrice:N0} ₽")</span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span>Итого к оплате</span>
+                            <span class="total-amount">@Model.Cart.FinalAmount.ToString("N0") ₽</span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
+                            Подтвердить заказ
+                        </button>
+                        
+                        <p class="terms-text text-center text-muted mt-3">
+                            <small>Оформляя заказ, вы соглашаетесь с условиями доставки</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
