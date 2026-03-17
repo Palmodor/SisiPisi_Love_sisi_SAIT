@@ -6590,24 +6590,31 @@
     ]
   },
   "packageFolders": {
-    "/home/proxor/.nuget/packages/": {}
+    "C:\\Users\\DEKKI\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/proxor/Рабочий стол/Love_Susi/LoveSushiPMR/LoveSushiPMR.csproj",
+      "projectUniqueName": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\LoveSushiPMR.csproj",
       "projectName": "LoveSushiPMR",
-      "projectPath": "/home/proxor/Рабочий стол/Love_Susi/LoveSushiPMR/LoveSushiPMR.csproj",
-      "packagesPath": "/home/proxor/.nuget/packages/",
-      "outputPath": "/home/proxor/Рабочий стол/Love_Susi/LoveSushiPMR/obj/",
+      "projectPath": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\LoveSushiPMR.csproj",
+      "packagesPath": "C:\\Users\\DEKKI\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/proxor/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\DEKKI\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -6620,7 +6627,13 @@
         "warnAsError": [
           "NU1605"
         ]
-      }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -6674,7 +6687,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.124/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

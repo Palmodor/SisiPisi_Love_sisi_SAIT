@@ -1,0 +1,73 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C027CBBF-1F67-A01A-9F96-190121EF3870}|LoveSushiPMR\\LoveSushiPMR.csproj|c:\\users\\dekki\\desktop\\sisipisi_love_sisi_sait\\love_susi\\lovesushipmr\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C027CBBF-1F67-A01A-9F96-190121EF3870}|LoveSushiPMR\\LoveSushiPMR.csproj|solutionrelative:lovesushipmr\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C027CBBF-1F67-A01A-9F96-190121EF3870}|LoveSushiPMR\\LoveSushiPMR.csproj|c:\\users\\dekki\\desktop\\sisipisi_love_sisi_sait\\love_susi\\lovesushipmr\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{C027CBBF-1F67-A01A-9F96-190121EF3870}|LoveSushiPMR\\LoveSushiPMR.csproj|solutionrelative:lovesushipmr\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "site.css",
+              "DocumentMoniker": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\wwwroot\\css\\site.css",
+              "RelativeDocumentMoniker": "LoveSushiPMR\\wwwroot\\css\\site.css",
+              "ToolTip": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\wwwroot\\css\\site.css",
+              "RelativeToolTip": "LoveSushiPMR\\wwwroot\\css\\site.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-03-03T07:04:09.643Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\Program.cs",
+              "RelativeDocumentMoniker": "LoveSushiPMR\\Program.cs",
+              "ToolTip": "C:\\Users\\DEKKI\\Desktop\\SisiPisi_Love_sisi_SAIT\\Love_Susi\\LoveSushiPMR\\Program.cs",
+              "RelativeToolTip": "LoveSushiPMR\\Program.cs",
+              "ViewState": "AgIAADcAAAAAAAAAAAAuwD4AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T07:03:40.398Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
