@@ -107,5 +107,14 @@ namespace LoveSushiPMR.Models.ViewModels
         public DateTime ValidUntil { get; set; } = DateTime.UtcNow.AddMonths(1);
         public int? MaxUsageCount { get; set; }
         public bool IsActive { get; set; } = true;
+
+        public int? PromotionId { get; set; }
+        public List<PromotionSelectViewModel> Promotions { get; set; } = new();
+    }
+
+    public class PromotionSelectViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

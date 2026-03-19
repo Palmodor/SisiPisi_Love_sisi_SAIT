@@ -82,6 +82,21 @@ public class HomeController : Controller
                 .ToListAsync()
         };
 
+        var promotionIds = viewModel.Promotions.Select(p => p.Id).ToList();
+        if (promotionIds.Count > 0)
+        {
+            viewModel.PromoCodesByPromotionId = await _context.PromoCodes
+                .Where(pc =>
+                    pc.IsActive &&
+                    pc.ValidUntil >= DateTime.UtcNow &&
+                    pc.PromotionId != null &&
+                    promotionIds.Contains(pc.PromotionId.Value) &&
+                    (pc.MaxUsageCount == null || pc.CurrentUsageCount < pc.MaxUsageCount))
+                .GroupBy(pc => pc.PromotionId!.Value)
+                .Select(g => new { PromotionId = g.Key, Code = g.OrderByDescending(pc => pc.Id).Select(pc => pc.Code).FirstOrDefault() })
+                .ToDictionaryAsync(x => x.PromotionId, x => x.Code ?? string.Empty);
+        }
+
         return View(viewModel);
     }
 

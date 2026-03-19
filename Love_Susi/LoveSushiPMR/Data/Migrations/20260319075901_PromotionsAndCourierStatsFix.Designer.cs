@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LoveSushiPMR.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260222125901_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260319075901_PromotionsAndCourierStatsFix")]
+    partial class PromotionsAndCourierStatsFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -765,6 +765,9 @@ namespace LoveSushiPMR.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<int?>("PromotionId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("ValidUntil")
                         .HasColumnType("timestamp with time zone");
 
@@ -772,6 +775,8 @@ namespace LoveSushiPMR.Data.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    b.HasIndex("PromotionId");
 
                     b.ToTable("PromoCodes");
                 });
@@ -819,22 +824,22 @@ namespace LoveSushiPMR.Data.Migrations
                             Id = 1,
                             Description = "Скидка 20% с 12:00 до 15:00",
                             DiscountPercent = 20m,
-                            EndDate = new DateTime(2027, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1652),
+                            EndDate = new DateTime(2027, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3677),
                             ImageUrl = "/images/promos/happy-hours.jpg",
                             IsActive = true,
                             Name = "Счастливые часы",
-                            StartDate = new DateTime(2025, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1636)
+                            StartDate = new DateTime(2025, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3674)
                         },
                         new
                         {
                             Id = 2,
                             Description = "Скидка 15% в день рождения",
                             DiscountPercent = 15m,
-                            EndDate = new DateTime(2027, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1658),
+                            EndDate = new DateTime(2027, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3686),
                             ImageUrl = "/images/promos/birthday.jpg",
                             IsActive = true,
                             Name = "День рождения",
-                            StartDate = new DateTime(2025, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1657)
+                            StartDate = new DateTime(2025, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3685)
                         });
                 });
 
@@ -1093,6 +1098,16 @@ namespace LoveSushiPMR.Data.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("LoveSushiPMR.Models.Entities.PromoCode", b =>
+                {
+                    b.HasOne("LoveSushiPMR.Models.Entities.Promotion", "Promotion")
+                        .WithMany("PromoCodes")
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Promotion");
+                });
+
             modelBuilder.Entity("LoveSushiPMR.Models.Entities.PromotionDish", b =>
                 {
                     b.HasOne("LoveSushiPMR.Models.Entities.Dish", "Dish")
@@ -1196,6 +1211,8 @@ namespace LoveSushiPMR.Data.Migrations
 
             modelBuilder.Entity("LoveSushiPMR.Models.Entities.Promotion", b =>
                 {
+                    b.Navigation("PromoCodes");
+
                     b.Navigation("PromotionDishes");
                 });
 

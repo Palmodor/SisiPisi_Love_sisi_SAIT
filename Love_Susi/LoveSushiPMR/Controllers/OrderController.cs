@@ -12,16 +12,27 @@ namespace LoveSushiPMR.Controllers
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public OrderController(ApplicationDbContext context)
+        public OrderController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         private int GetUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.Parse(userIdClaim!);
+        }
+
+        private (int MinDeliveredOrders, decimal Percent) GetLoyaltyDiscountSettings()
+        {
+            var minOrders = _configuration.GetValue<int?>("LoyaltyDiscount:MinDeliveredOrders") ?? 0;
+            var percent = _configuration.GetValue<decimal?>("LoyaltyDiscount:Percent") ?? 0m;
+            if (minOrders < 0) minOrders = 0;
+            if (percent < 0) percent = 0m;
+            return (minOrders, percent);
         }
 
         [HttpGet]
@@ -56,6 +67,8 @@ namespace LoveSushiPMR.Controllers
                 TotalItems = cartItems.Sum(c => c.Quantity)
             };
 
+            cart.DeliveryPrice = cart.TotalAmount >= 1000 ? 0 : 100;
+
             var addresses = await _context.DeliveryAddresses
                 .Include(da => da.DeliveryZone)
                 .Where(da => da.UserId == userId)
@@ -69,7 +82,6 @@ namespace LoveSushiPMR.Controllers
             var viewModel = new CheckoutViewModel
             {
                 Cart = cart,
-                DeliveryPrice = cart.TotalAmount >= 1000 ? 0 : 100,
                 SavedAddresses = addresses.Select(a => new DeliveryAddressViewModel
                 {
                     Id = a.Id,
@@ -88,6 +100,7 @@ namespace LoveSushiPMR.Controllers
         public async Task<IActionResult> Checkout(CheckoutViewModel model)
         {
             var userId = GetUserId();
+            var isApplyPromoOnly = Request.Form.ContainsKey("applyPromo");
 
             // Проверяем, что адрес существует и принадлежит пользователю
             var addressExists = await _context.DeliveryAddresses
@@ -116,21 +129,59 @@ namespace LoveSushiPMR.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
-            // Проверяем промокод
-            PromoCode? promoCode = null;
-            if (!string.IsNullOrWhiteSpace(model.PromoCode))
-            {
-                promoCode = await _context.PromoCodes
-                    .FirstOrDefaultAsync(pc => pc.Code == model.PromoCode.ToUpper() && 
-                        pc.IsActive && 
-                        pc.ValidUntil >= DateTime.UtcNow &&
-                        (pc.MaxUsageCount == null || pc.CurrentUsageCount < pc.MaxUsageCount));
-            }
-
             // Рассчитываем суммы
             var totalAmount = cartItems.Sum(c => c.Dish.Price * c.Quantity);
             var deliveryPrice = totalAmount >= 1000 ? 0 : 100;
-            
+
+            // Проверяем промокод (с причиной, если не применим)
+            PromoCode? promoCode = null;
+            var promoError = string.Empty;
+            var enteredPromo = (model.PromoCode ?? string.Empty).Trim().ToUpperInvariant();
+            if (!string.IsNullOrWhiteSpace(enteredPromo))
+            {
+                promoCode = await _context.PromoCodes.FirstOrDefaultAsync(pc => pc.Code == enteredPromo);
+
+                if (promoCode == null)
+                {
+                    promoError = "Промокод не найден";
+                }
+                else if (!promoCode.IsActive)
+                {
+                    promoError = "Промокод не активен";
+                    promoCode = null;
+                }
+                else if (promoCode.ValidUntil < DateTime.UtcNow)
+                {
+                    promoError = "Срок действия промокода истёк";
+                    promoCode = null;
+                }
+                else if (promoCode.MaxUsageCount != null && promoCode.CurrentUsageCount >= promoCode.MaxUsageCount)
+                {
+                    promoError = "Лимит использований промокода исчерпан";
+                    promoCode = null;
+                }
+                else if (promoCode.MinOrderAmount != null && totalAmount < promoCode.MinOrderAmount)
+                {
+                    promoError = $"Минимальная сумма заказа для промокода: {promoCode.MinOrderAmount.Value:N0} ₽";
+                    promoCode = null;
+                }
+            }
+
+            // Лояльность: постоянная скидка за N+ доставленных заказов
+            var (minDeliveredOrders, loyaltyPercent) = GetLoyaltyDiscountSettings();
+            decimal loyaltyDiscountAmount = 0;
+            if (minDeliveredOrders > 0 && loyaltyPercent > 0)
+            {
+                var deliveredOrdersCount = await _context.Orders
+                    .Where(o => o.UserId == userId && o.Status == OrderStatus.Delivered)
+                    .CountAsync();
+
+                if (deliveredOrdersCount >= minDeliveredOrders)
+                {
+                    loyaltyDiscountAmount = totalAmount * (loyaltyPercent / 100m);
+                }
+            }
+
             decimal discountAmount = 0;
             if (promoCode != null)
             {
@@ -139,14 +190,78 @@ namespace LoveSushiPMR.Controllers
                     discountAmount = promoCode.MaxDiscountAmount.Value;
             }
 
-            var bonusUsed = Math.Min(model.BonusAmount ?? 0, totalAmount - discountAmount);
+            var combinedDiscount = loyaltyDiscountAmount + discountAmount;
+            if (combinedDiscount > totalAmount) combinedDiscount = totalAmount;
+
+            var bonusUsed = Math.Min(model.BonusAmount ?? 0, totalAmount - combinedDiscount);
             
             // Проверяем бонусы пользователя
             var userBonus = await _context.BonusAccounts.FirstOrDefaultAsync(b => b.UserId == userId);
             if (userBonus != null && bonusUsed > userBonus.Balance)
                 bonusUsed = userBonus.Balance;
 
-            var finalAmount = totalAmount + deliveryPrice - discountAmount - bonusUsed;
+            var finalAmount = totalAmount + deliveryPrice - combinedDiscount - bonusUsed;
+
+            if (isApplyPromoOnly)
+            {
+                if (!string.IsNullOrEmpty(promoError))
+                {
+                    TempData["Error"] = promoError;
+                }
+                else if (!string.IsNullOrWhiteSpace(enteredPromo))
+                {
+                    TempData["Success"] = "Промокод применён. Итог пересчитан.";
+                }
+
+                var cart = new CartViewModel
+                {
+                    Items = cartItems.Select(c => new CartItemViewModel
+                    {
+                        DishId = c.DishId,
+                        DishName = c.Dish.Name,
+                        ImageUrl = c.Dish.ImageUrl,
+                        UnitPrice = c.Dish.Price,
+                        Quantity = c.Quantity,
+                        WeightGrams = c.Dish.WeightGrams
+                    }).ToList(),
+                    TotalAmount = totalAmount,
+                    TotalItems = cartItems.Sum(c => c.Quantity),
+                    DeliveryPrice = deliveryPrice,
+                    DiscountAmount = combinedDiscount,
+                    BonusUsed = bonusUsed
+                };
+
+                var addresses = await _context.DeliveryAddresses
+                    .Include(da => da.DeliveryZone)
+                    .Where(da => da.UserId == userId)
+                    .ToListAsync();
+
+                var bonuses = await _context.BonusAccounts
+                    .Where(ba => ba.UserId == userId)
+                    .Select(ba => ba.Balance)
+                    .FirstOrDefaultAsync();
+
+                var vm = new CheckoutViewModel
+                {
+                    DeliveryAddressId = model.DeliveryAddressId,
+                    PaymentMethod = model.PaymentMethod,
+                    PromoCode = enteredPromo,
+                    BonusAmount = model.BonusAmount,
+                    UtensilsCount = model.UtensilsCount,
+                    Comment = model.Comment,
+                    Cart = cart,
+                    SavedAddresses = addresses.Select(a => new DeliveryAddressViewModel
+                    {
+                        Id = a.Id,
+                        FullAddress = $"{a.City}, {a.Street}, д. {a.House}" +
+                                      (string.IsNullOrEmpty(a.Apartment) ? "" : $", кв. {a.Apartment}"),
+                        IsDefault = a.IsDefault
+                    }).ToList(),
+                    AvailableBonuses = bonuses
+                };
+
+                return View(vm);
+            }
 
             // Создаём заказ
             var order = new Order
@@ -156,7 +271,7 @@ namespace LoveSushiPMR.Controllers
                 DeliveryAddressId = model.DeliveryAddressId,
                 PaymentId = await CreatePayment(finalAmount, model.PaymentMethod),
                 TotalAmount = totalAmount,
-                DiscountAmount = discountAmount,
+                DiscountAmount = combinedDiscount,
                 BonusUsed = bonusUsed,
                 FinalAmount = finalAmount,
                 Comment = model.Comment,

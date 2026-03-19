@@ -11,6 +11,9 @@ namespace LoveSushiPMR.Models.Entities
         public int? MaxUsageCount { get; set; }
         public int CurrentUsageCount { get; set; }
         public bool IsActive { get; set; } = true;
+
+        public int? PromotionId { get; set; }
+        public Promotion? Promotion { get; set; }
         
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }

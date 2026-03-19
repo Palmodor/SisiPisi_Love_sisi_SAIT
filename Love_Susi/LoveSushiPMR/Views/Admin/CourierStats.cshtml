@@ -1,0 +1,75 @@
+@model LoveSushiPMR.Models.ViewModels.CourierStatsViewModel
+@{
+    ViewData["Title"] = "Статистика курьеров";
+}
+
+<section class="admin-section">
+    <div class="container-fluid">
+        <div class="admin-header">
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <h1><i class="bi bi-graph-up"></i> Статистика курьеров</h1>
+                <div class="text-muted small">
+                    Период: @Model.DateFromUtc.ToLocalTime().ToString("dd.MM.yyyy") – @Model.DateToUtc.ToLocalTime().ToString("dd.MM.yyyy")
+                    @if (Model.MinDeliveriesForBonus > 0)
+                    {
+                        <span> · Премия от @Model.MinDeliveriesForBonus доставок</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-filters mb-4">
+            <div class="btn-group">
+                <a asp-action="CourierStats" asp-route-period="Week"
+                   class="btn btn-outline-primary @(Model.Period == LoveSushiPMR.Models.ViewModels.StatsPeriod.Week ? "active" : "")">Неделя</a>
+                <a asp-action="CourierStats" asp-route-period="Month"
+                   class="btn btn-outline-primary @(Model.Period == LoveSushiPMR.Models.ViewModels.StatsPeriod.Month ? "active" : "")">Месяц</a>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>Курьер</th>
+                            <th>Телефон</th>
+                            <th>Доставок</th>
+                            <th>Сумма заказов</th>
+                            <th>До премии</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Rows.OrderByDescending(r => r.DeliveredOrdersCount))
+                        {
+                            <tr class="@(row.IsBonusEligible ? "table-success" : "")">
+                                <td><strong>@row.CourierName</strong></td>
+                                <td>@row.Phone</td>
+                                <td>@row.DeliveredOrdersCount</td>
+                                <td>@row.DeliveredOrdersSum.ToString("N0") ₽</td>
+                                <td>
+                                    @if (Model.MinDeliveriesForBonus <= 0)
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                    else if (row.IsBonusEligible)
+                                    {
+                                        <span class="badge bg-success">Выполнено</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@row.RemainingToBonus</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+

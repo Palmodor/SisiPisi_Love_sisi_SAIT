@@ -36,11 +36,9 @@
                         <tr>
                             <th>№ заказа</th>
                             <th>Клиент</th>
-                            <th>Телефон</th>
                             <th>Сумма</th>
                             <th>Статус</th>
                             <th>Дата</th>
-                            <th>Курьер</th>
                             <th>Действия</th>
                         </tr>
                     </thead>
@@ -50,7 +48,6 @@
                             <tr>
                                 <td><strong>@order.OrderNumber</strong></td>
                                 <td>@order.CustomerName</td>
-                                <td>@order.Phone</td>
                                 <td>@order.TotalAmount.ToString("N0") ₽</td>
                                 <td>
                                     @{
@@ -70,16 +67,6 @@
                                     <span class="badge @statusClass">@order.CurrentStatus</span>
                                 </td>
                                 <td>@order.OrderDate.ToString("dd.MM HH:mm")</td>
-                                <td>
-                                    @if (order.AssignedCourierId.HasValue)
-                                    {
-                                        <i class="bi bi-check-circle text-success"></i>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                </td>
                                 <td>
                                     <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-sm btn-primary">
                                         <i class="bi bi-eye"></i> Подробнее

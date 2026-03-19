@@ -3,6 +3,7 @@ using System;
 using LoveSushiPMR.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LoveSushiPMR.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319073939_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -821,22 +824,22 @@ namespace LoveSushiPMR.Data.Migrations
                             Id = 1,
                             Description = "Скидка 20% с 12:00 до 15:00",
                             DiscountPercent = 20m,
-                            EndDate = new DateTime(2027, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3677),
+                            EndDate = new DateTime(2027, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9730),
                             ImageUrl = "/images/promos/happy-hours.jpg",
                             IsActive = true,
                             Name = "Счастливые часы",
-                            StartDate = new DateTime(2025, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3674)
+                            StartDate = new DateTime(2025, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9726)
                         },
                         new
                         {
                             Id = 2,
                             Description = "Скидка 15% в день рождения",
                             DiscountPercent = 15m,
-                            EndDate = new DateTime(2027, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3686),
+                            EndDate = new DateTime(2027, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9739),
                             ImageUrl = "/images/promos/birthday.jpg",
                             IsActive = true,
                             Name = "День рождения",
-                            StartDate = new DateTime(2025, 3, 19, 7, 58, 57, 642, DateTimeKind.Utc).AddTicks(3685)
+                            StartDate = new DateTime(2025, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9738)
                         });
                 });
 

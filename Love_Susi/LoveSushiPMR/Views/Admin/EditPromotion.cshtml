@@ -69,13 +69,15 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Дата начала</label>
-                                    <input type="datetime-local" asp-for="StartDate" class="form-control" required />
+                                    <input type="datetime-local" asp-for="StartDate" class="form-control" required
+                                           value="@Model.StartDate.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")" />
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Дата окончания</label>
-                                    <input type="datetime-local" asp-for="EndDate" class="form-control" required />
+                                    <input type="datetime-local" asp-for="EndDate" class="form-control" required
+                                           value="@Model.EndDate.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")" />
                                 </div>
                             </div>
                         </div>

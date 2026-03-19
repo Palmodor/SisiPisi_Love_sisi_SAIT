@@ -12,11 +12,13 @@ namespace LoveSushiPMR.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfiguration _configuration;
 
-        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment)
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration configuration)
         {
             _context = context;
             _environment = environment;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
@@ -491,6 +493,69 @@ namespace LoveSushiPMR.Controllers
             return View(couriers);
         }
 
+        public async Task<IActionResult> CourierStats(string? period = null)
+        {
+            var parsedPeriod = Enum.TryParse<StatsPeriod>(period, ignoreCase: true, out var p) ? p : StatsPeriod.Week;
+
+            var nowUtc = DateTime.UtcNow;
+            var fromUtc = parsedPeriod == StatsPeriod.Month ? nowUtc.AddDays(-30) : nowUtc.AddDays(-7);
+
+            var minDeliveriesForBonus = _configuration.GetValue<int?>("CourierBonus:MinDeliveriesForBonus") ?? 0;
+            if (minDeliveriesForBonus < 0) minDeliveriesForBonus = 0;
+
+            var delivered = await _context.Orders
+                .AsNoTracking()
+                .Where(o =>
+                    o.Status == OrderStatus.Delivered &&
+                    o.CourierId != null &&
+                    o.OrderDate >= fromUtc &&
+                    o.OrderDate <= nowUtc)
+                .GroupBy(o => o.CourierId!.Value)
+                .Select(g => new
+                {
+                    CourierId = g.Key,
+                    Count = g.Count(),
+                    Sum = g.Sum(x => x.FinalAmount)
+                })
+                .ToListAsync();
+
+            var couriers = await _context.Couriers
+                .AsNoTracking()
+                .OrderBy(c => c.FullName)
+                .Select(c => new { c.Id, c.FullName, c.Phone })
+                .ToListAsync();
+
+            var deliveredByCourierId = delivered.ToDictionary(x => x.CourierId, x => x);
+
+            var rows = couriers.Select(c =>
+            {
+                deliveredByCourierId.TryGetValue(c.Id, out var d);
+                var count = d?.Count ?? 0;
+                var remaining = minDeliveriesForBonus <= 0 ? 0 : Math.Max(0, minDeliveriesForBonus - count);
+                return new CourierStatsRowViewModel
+                {
+                    CourierId = c.Id,
+                    CourierName = c.FullName,
+                    Phone = c.Phone,
+                    DeliveredOrdersCount = count,
+                    DeliveredOrdersSum = d?.Sum ?? 0m,
+                    IsBonusEligible = minDeliveriesForBonus > 0 && count >= minDeliveriesForBonus,
+                    RemainingToBonus = remaining
+                };
+            }).ToList();
+
+            var viewModel = new CourierStatsViewModel
+            {
+                Period = parsedPeriod,
+                DateFromUtc = fromUtc,
+                DateToUtc = nowUtc,
+                MinDeliveriesForBonus = minDeliveriesForBonus,
+                Rows = rows
+            };
+
+            return View(viewModel);
+        }
+
         [HttpGet]
         public IActionResult CreateCourier()
         {
@@ -598,10 +663,16 @@ namespace LoveSushiPMR.Controllers
         [HttpGet]
         public IActionResult CreatePromoCode()
         {
-            return View(new PromoCodeEditViewModel 
-            { 
+            var promotions = _context.Promotions
+                .OrderByDescending(p => p.Id)
+                .Select(p => new PromotionSelectViewModel { Id = p.Id, Name = p.Name })
+                .ToList();
+
+            return View(new PromoCodeEditViewModel
+            {
                 ValidUntil = DateTime.UtcNow.AddMonths(1),
-                IsActive = true 
+                IsActive = true,
+                Promotions = promotions
             });
         }
 
@@ -630,7 +701,8 @@ namespace LoveSushiPMR.Controllers
                 ValidUntil = EnsureUtc(model.ValidUntil),
                 MaxUsageCount = model.MaxUsageCount,
                 CurrentUsageCount = 0,
-                IsActive = model.IsActive
+                IsActive = model.IsActive,
+                PromotionId = model.PromotionId
             };
 
             _context.PromoCodes.Add(promoCode);
@@ -646,6 +718,11 @@ namespace LoveSushiPMR.Controllers
             var promoCode = await _context.PromoCodes.FindAsync(id);
             if (promoCode == null) return NotFound();
 
+            var promotions = await _context.Promotions
+                .OrderByDescending(p => p.Id)
+                .Select(p => new PromotionSelectViewModel { Id = p.Id, Name = p.Name })
+                .ToListAsync();
+
             var viewModel = new PromoCodeEditViewModel
             {
                 Id = promoCode.Id,
@@ -655,7 +732,9 @@ namespace LoveSushiPMR.Controllers
                 MinOrderAmount = promoCode.MinOrderAmount,
                 ValidUntil = promoCode.ValidUntil,
                 MaxUsageCount = promoCode.MaxUsageCount,
-                IsActive = promoCode.IsActive
+                IsActive = promoCode.IsActive,
+                PromotionId = promoCode.PromotionId,
+                Promotions = promotions
             };
 
             return View(viewModel);
@@ -689,6 +768,7 @@ namespace LoveSushiPMR.Controllers
             promoCode.ValidUntil = EnsureUtc(model.ValidUntil);
             promoCode.MaxUsageCount = model.MaxUsageCount;
             promoCode.IsActive = model.IsActive;
+            promoCode.PromotionId = model.PromotionId;
 
             await _context.SaveChangesAsync();
 
@@ -801,7 +881,8 @@ namespace LoveSushiPMR.Controllers
             {
                 DateTimeKind.Utc => dateTime,
                 DateTimeKind.Local => dateTime.ToUniversalTime(),
-                DateTimeKind.Unspecified => DateTime.SpecifyKind(dateTime, DateTimeKind.Utc),
+                // HTML input type="datetime-local" обычно приходит как Unspecified (локальное время без таймзоны)
+                DateTimeKind.Unspecified => DateTime.SpecifyKind(dateTime, DateTimeKind.Local).ToUniversalTime(),
                 _ => DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)
             };
         }

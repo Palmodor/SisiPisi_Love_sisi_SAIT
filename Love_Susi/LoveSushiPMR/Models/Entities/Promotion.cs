@@ -13,6 +13,7 @@ namespace LoveSushiPMR.Models.Entities
         public bool IsActive { get; set; } = true;
         
         public ICollection<PromotionDish> PromotionDishes { get; set; } = new List<PromotionDish>();
+        public ICollection<PromoCode> PromoCodes { get; set; } = new List<PromoCode>();
     }
 
     public class PromotionDish

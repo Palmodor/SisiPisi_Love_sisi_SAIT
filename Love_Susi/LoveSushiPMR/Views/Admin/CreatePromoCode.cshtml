@@ -28,6 +28,18 @@
                         </div>
 
                         <div class="mb-3">
+                            <label asp-for="PromotionId" class="form-label">Акция (необязательно)</label>
+                            <select asp-for="PromotionId" class="form-select">
+                                <option value="">— Без привязки —</option>
+                                @foreach (var promo in Model.Promotions)
+                                {
+                                    <option value="@promo.Id">@promo.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="PromotionId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
                             <label asp-for="DiscountPercent" class="form-label">Скидка (%)</label>
                             <input asp-for="DiscountPercent" class="form-control" type="number" min="1" max="100" />
                             <span asp-validation-for="DiscountPercent" class="text-danger"></span>

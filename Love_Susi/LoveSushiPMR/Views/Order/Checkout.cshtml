@@ -75,8 +75,8 @@
                     <div class="checkout-card">
                         <h4><i class="bi bi-tag"></i> Промокод</h4>
                         <div class="input-group">
-                            <input type="text" name="PromoCode" class="form-control" placeholder="Введите промокод" />
-                            <button type="button" class="btn btn-outline-primary">Применить</button>
+                            <input type="text" name="PromoCode" class="form-control" placeholder="Введите промокод" value="@Model.PromoCode" />
+                            <button type="submit" name="applyPromo" value="true" class="btn btn-outline-primary">Применить</button>
                         </div>
                     </div>
 
@@ -133,6 +133,13 @@
                             <span>Доставка</span>
                             <span>@(Model.Cart.DeliveryPrice == 0 ? "Бесплатно" : $"{Model.Cart.DeliveryPrice:N0} ₽")</span>
                         </div>
+                        @if (Model.Cart.DiscountAmount > 0)
+                        {
+                            <div class="summary-row">
+                                <span>Скидка</span>
+                                <span>-@Model.Cart.DiscountAmount.ToString("N0") ₽</span>
+                            </div>
+                        }
                         <div class="summary-row summary-total">
                             <span>Итого к оплате</span>
                             <span class="total-amount">@Model.Cart.FinalAmount.ToString("N0") ₽</span>

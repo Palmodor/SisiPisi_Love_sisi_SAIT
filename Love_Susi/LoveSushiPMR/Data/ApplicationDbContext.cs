@@ -105,6 +105,12 @@ namespace LoveSushiPMR.Data
                 .HasIndex(p => p.Code)
                 .IsUnique();
 
+            modelBuilder.Entity<Promotion>()
+                .HasMany(p => p.PromoCodes)
+                .WithOne(pc => pc.Promotion)
+                .HasForeignKey(pc => pc.PromotionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // Настройка decimal для PostgreSQL
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)

@@ -6,7 +6,9 @@ namespace LoveSushiPMR.Models.ViewModels
         public decimal TotalAmount { get; set; }
         public int TotalItems { get; set; }
         public decimal DeliveryPrice { get; set; }
-        public decimal FinalAmount => TotalAmount + DeliveryPrice;
+        public decimal DiscountAmount { get; set; }
+        public decimal BonusUsed { get; set; }
+        public decimal FinalAmount => TotalAmount + DeliveryPrice - DiscountAmount - BonusUsed;
     }
 
     public class CartItemViewModel

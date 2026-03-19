@@ -52,7 +52,7 @@
                                 <td>@(promo.DiscountPercent.HasValue ? $"{promo.DiscountPercent}%" : "-")</td>
                                 <td>@promo.StartDate.ToString("dd.MM.yyyy") - @promo.EndDate.ToString("dd.MM.yyyy")</td>
                                 <td>
-                                    @if (promo.IsActive && promo.EndDate >= DateTime.UtcNow)
+                                    @if (promo.IsActive && promo.StartDate <= DateTime.UtcNow && promo.EndDate >= DateTime.UtcNow)
                                     {
                                         <span class="badge bg-success">Активна</span>
                                     }

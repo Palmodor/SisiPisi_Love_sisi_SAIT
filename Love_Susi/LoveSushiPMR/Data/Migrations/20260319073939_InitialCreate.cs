@@ -93,26 +93,6 @@ namespace LoveSushiPMR.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PromoCodes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Code = table.Column<string>(type: "text", nullable: false),
-                    DiscountPercent = table.Column<decimal>(type: "numeric(5,2)", precision: 5, scale: 2, nullable: false),
-                    MaxDiscountAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
-                    MinOrderAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
-                    ValidUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    MaxUsageCount = table.Column<int>(type: "integer", nullable: true),
-                    CurrentUsageCount = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PromoCodes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Promotions",
                 columns: table => new
                 {
@@ -183,6 +163,33 @@ namespace LoveSushiPMR.Data.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PromoCodes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    DiscountPercent = table.Column<decimal>(type: "numeric(5,2)", precision: 5, scale: 2, nullable: false),
+                    MaxDiscountAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    MinOrderAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    ValidUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    MaxUsageCount = table.Column<int>(type: "integer", nullable: true),
+                    CurrentUsageCount = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    PromotionId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PromoCodes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PromoCodes_Promotions_PromotionId",
+                        column: x => x.PromotionId,
+                        principalTable: "Promotions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -488,8 +495,8 @@ namespace LoveSushiPMR.Data.Migrations
                 columns: new[] { "Id", "Conditions", "Description", "DiscountPercent", "EndDate", "ImageUrl", "IsActive", "Name", "StartDate" },
                 values: new object[,]
                 {
-                    { 1, null, "Скидка 20% с 12:00 до 15:00", 20m, new DateTime(2027, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1652), "/images/promos/happy-hours.jpg", true, "Счастливые часы", new DateTime(2025, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1636) },
-                    { 2, null, "Скидка 15% в день рождения", 15m, new DateTime(2027, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1658), "/images/promos/birthday.jpg", true, "День рождения", new DateTime(2025, 2, 22, 12, 58, 59, 34, DateTimeKind.Utc).AddTicks(1657) }
+                    { 1, null, "Скидка 20% с 12:00 до 15:00", 20m, new DateTime(2027, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9730), "/images/promos/happy-hours.jpg", true, "Счастливые часы", new DateTime(2025, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9726) },
+                    { 2, null, "Скидка 15% в день рождения", 15m, new DateTime(2027, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9739), "/images/promos/birthday.jpg", true, "День рождения", new DateTime(2025, 3, 19, 7, 39, 36, 497, DateTimeKind.Utc).AddTicks(9738) }
                 });
 
             migrationBuilder.InsertData(
@@ -596,6 +603,11 @@ namespace LoveSushiPMR.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PromoCodes_PromotionId",
+                table: "PromoCodes",
+                column: "PromotionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PromotionDishes_DishId",
                 table: "PromotionDishes",
                 column: "DishId");
@@ -643,9 +655,6 @@ namespace LoveSushiPMR.Data.Migrations
                 name: "Reviews");
 
             migrationBuilder.DropTable(
-                name: "Promotions");
-
-            migrationBuilder.DropTable(
                 name: "Dishes");
 
             migrationBuilder.DropTable(
@@ -671,6 +680,9 @@ namespace LoveSushiPMR.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Promotions");
 
             migrationBuilder.DropTable(
                 name: "AppRoles");
