@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LoveSushiPMR")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4158f5fa37bd073fff7c44259cfaf691d7791480")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d56c3e3e2e6147d0d1161a75ccec73c9db6ff95b")]
 [assembly: System.Reflection.AssemblyProductAttribute("LoveSushiPMR")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LoveSushiPMR")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
